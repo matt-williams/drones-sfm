@@ -7,6 +7,7 @@ var aws = require('aws-sdk');
 var Docker = require('dockerode');
 
 var s3img = new aws.S3({params: {Bucket: config.S3_BUCKET_IMG}});
+var s3img320 = new aws.S3({params: {Bucket: config.S3_BUCKET_IMG_320}});
 var s3data = new aws.S3({params: {Bucket: config.S3_BUCKET_DATA}});
 var docker = new Docker();
 
@@ -18,8 +19,9 @@ console.log(containerInfo);
     });
   });
   docker.createContainer({AutoRemove: true,
-                          Env: ['SRC_BUCKET=' + config.S3_BUCKET_IMG,
-                                'DST_BUCKET=' + config.S3_BUCKET_DATA,
+                          Env: ['IMG_BUCKET=' + config.S3_BUCKET_IMG,
+                                'IMG_320_BUCKET=' + config.S3_BUCKET_IMG_320,
+                                'DATA_BUCKET=' + config.S3_BUCKET_DATA,
                                 'FOLDER=' + folder],
                           Image: config.DOCKER_IMG,
                           Name: 'drones-sfm-' + folder,
@@ -36,7 +38,13 @@ console.log(containerInfo);
               if (err) {
                 res.status(500).send(err);
               } else {
-                stream.pipe(res);
+                stream.on('data', function(chunk) {
+                  console.log(chunk.toString().replace(/\n$/, ''));
+                  res.write(chunk);
+                });
+                stream.on('end', function() {
+                  res.end();
+                });
               }
             });
           }
@@ -79,6 +87,21 @@ app.get('/api/:folder/images/:file', function(req, res) {
      }
    });
 });
+app.get('/api/:folder/images320/:file', function(req, res) {
+  var folder = req.params.folder;
+  var file = req.params.file;
+  s3img320.headObject({Key: folder + '/' + file}, function(err, data) {
+     if (err) {
+       res.status(err.code).send(err);
+     } else {
+       res.writeHead(200, {
+         "Content-Length": data.ContentLength,
+         "Content-Type": data.ContentType
+       });
+       s3img320.getObject({Key: folder + '/' + file}).createReadStream().pipe(res);
+     }
+   });
+});
 app.post('/api/:folder/process', function(req, res) {
   var folder = req.params.folder;
   process(res, folder);
@@ -86,6 +109,7 @@ app.post('/api/:folder/process', function(req, res) {
 app.use('/api/:folder', function(req, res) {
   var folder = req.params.folder;
   var file = req.path.substring(1);
+console.log(folder + '/' + file);
   s3data.headObject({Key: folder + '/' + file}, function(err, data) {
      if (err) {
        res.status(err.code).send(err);
