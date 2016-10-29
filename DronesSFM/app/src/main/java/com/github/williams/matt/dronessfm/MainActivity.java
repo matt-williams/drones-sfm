@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
@@ -140,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements ARDiscoveryServic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "Creating!");
         setContentView(R.layout.activity_main);
         ((EditText)findViewById(R.id.folder)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -154,6 +156,12 @@ public class MainActivity extends AppCompatActivity implements ARDiscoveryServic
 //        initDiscoveryService();
 //        registerReceivers();
 //        startDiscovery();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        setContentView(R.layout.activity_main);
     }
 
     @Override
