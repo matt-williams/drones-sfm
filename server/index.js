@@ -6,6 +6,7 @@ var morgan = require('morgan');
 var aws = require('aws-sdk');
 var Docker = require('dockerode');
 
+var dynamo = new aws.DynamoDB({params: {TableName: config.DYNAMO_TABLE}, region: 'us-east-1'});
 var s3img = new aws.S3({params: {Bucket: config.S3_BUCKET_IMG}});
 var s3img320 = new aws.S3({params: {Bucket: config.S3_BUCKET_IMG_320}});
 var s3data = new aws.S3({params: {Bucket: config.S3_BUCKET_DATA}});
@@ -22,6 +23,7 @@ console.log(containerInfo);
                           Env: ['IMG_BUCKET=' + config.S3_BUCKET_IMG,
                                 'IMG_320_BUCKET=' + config.S3_BUCKET_IMG_320,
                                 'DATA_BUCKET=' + config.S3_BUCKET_DATA,
+                                'TABLE=' + config.DYNAMO_TABLE,
                                 'FOLDER=' + folder],
                           Image: config.DOCKER_IMG,
                           Name: 'drones-sfm-' + folder,
@@ -55,6 +57,20 @@ console.log(containerInfo);
 
 var app = express();
 app.use(morgan("combined"));
+app.get('/api/', function(req, res) {
+  dynamo.scan({}, function(err, data) {
+    if (err) {
+      res.status(err.code).send(err);
+    } else {
+      var items = data.Items;
+      var array = [];
+      for (var ii = 0; ii < items.length; ii++) {
+        array.push({folder: items[ii].folder.S, thumbnail: items[ii].thumbnail.S});
+      }
+      res.send(array);
+    }
+  });
+});
 app.use('/api/:folder', express.static('static/api/folder'));
 app.put('/api/:folder/images/:file', function(req, res) {
   var folder = req.params.folder;
@@ -123,6 +139,8 @@ console.log(folder + '/' + file);
    });
 });
 
+app.use('/js/jquery', express.static('node_modules/jquery/dist'));
+app.use('/js/vue', express.static('node_modules/vue/dist'));
 app.use('/', express.static('static'));
 app.listen(config.HTTP_PORT, function() {
   console.log('HTTP server listening on ' + config.HTTP_PORT);

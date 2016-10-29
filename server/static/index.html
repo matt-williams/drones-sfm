@@ -1,9 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Drones</title>
+<title>Drones SFM</title>
+<script src="js/jquery/jquery.js"></script>
+<script src="js/vue/vue.js"></script>
 </head>
 <body>
-<h1>Drones</h1>
+<h1>Drones SFM</h1>
+Download the <a href="DronesSFM.apk">Android app</a>
+<h2>Cases</h2>
+<div id="cases">
+  <img src="loading.gif" v-if="loading">
+  <table v-else>
+    <tr v-for="item in folders">
+      <td><a v-bind:href="'/api/' + item.folder"><img v-bind:src="'/api/' + item.folder + '/images320/' + item.thumbnail" width="120"></a></td>
+      <td><a v-bind:href="'/api/' + item.folder">{{item.folder}}</a></td>
+    </tr>
+  </table>
+</div>
+<script>
+var cases = new Vue({
+  el: '#cases',
+  data: {
+    loading: true,
+    folders: []
+  }
+});
+$.get('/api/', function(data) {
+  cases.folders = data;
+  cases.loading = false;
+});
+</script>
 </body>
 </html>

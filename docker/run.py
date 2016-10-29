@@ -7,10 +7,13 @@ import Image
 img_bucket = os.environ['IMG_BUCKET']
 img_320_bucket = os.environ['IMG_320_BUCKET']
 data_bucket = os.environ['DATA_BUCKET']
+table = os.environ['TABLE']
 folder = os.environ['FOLDER']
 data_dir = '/source/drones/data';
 
 s3c = boto3.client('s3')
+dynamo = boto3.client('dynamodb', region_name="us-east-1")
+
 for entry in s3c.list_objects(Bucket=img_bucket, Prefix=folder + '/')['Contents']:
     key = entry['Key']
     if key != folder + '/':
@@ -28,8 +31,11 @@ for entry in s3c.list_objects(Bucket=img_bucket, Prefix=folder + '/')['Contents'
 
 os.system('/source/OpenSfM/bin/run_all %s' % (data_dir,))
 
+thumbnail = ""
 for root, dirnames, filenames in os.walk(data_dir + '/images320'):
     for filename in filenames:
+        if thumbnail == '' and filename != '.gitignore':
+            thumbnail = filename
         file = root + '/' + filename
         key = file.replace(data_dir + '/images320/', folder + '/')
         print 'Uploading %s to %s' % (file, key)
@@ -42,3 +48,8 @@ for root, dirnames, filenames in os.walk(data_dir):
             key = file.replace(data_dir + '/', folder + '/')
             print 'Uploading %s to %s' % (file, key)
             s3c.upload_file(file, data_bucket, key)
+
+print 'Writing %s to dynamodb' % (folder,)
+dynamo.put_item(TableName=table,
+                Item={'folder': {'S': folder},
+                      'thumbnail': {'S': thumbnail}});

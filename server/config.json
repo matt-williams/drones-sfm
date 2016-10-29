@@ -1,5 +1,6 @@
 {
   "HTTP_PORT": 8080,
+  "DYNAMO_TABLE": "drones",
   "S3_BUCKET_IMG": "drones-img",
   "S3_BUCKET_IMG_320": "drones-img-320",
   "S3_BUCKET_DATA": "drones-data",
