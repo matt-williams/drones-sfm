@@ -1,0 +1,6 @@
+{
+  "HTTP_PORT": 8080,
+  "S3_BUCKET_IMG": "drones-img",
+  "S3_BUCKET_DATA": "drones-data",
+  "DOCKER_IMG": "drones-sfm"
+}

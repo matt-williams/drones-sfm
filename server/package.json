@@ -1,0 +1,28 @@
+{
+  "name": "drones-sfm",
+  "version": "1.0.0",
+  "description": "SFM for photos from Drones",
+  "main": "index.js",
+  "scripts": {
+    "start": "forever start index.js",
+    "stop": "forever stop index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matt-williams/drones-sfm.git"
+  },
+  "author": "Matt Williams <matwilliams@hotmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/matt-williams/drones-sfm/issues"
+  },
+  "homepage": "https://github.com/matt-williams/drones-sfm#readme",
+  "dependencies": {
+    "aws-sdk": "^2.6.12",
+    "dockerode": "^2.3.1",
+    "express": "^4.14.0",
+    "forever": "^0.15.2",
+    "morgan": "^1.7.0"
+  }
+}

@@ -1,5 +1,5 @@
 
 # OpenSfM will use the default parameters from opensfm/config.py
 # Set here any parameter that you want to override for this dataset
-matching_gps_neighbors: 4
 processes: 1
+feature_type: AKAZE
