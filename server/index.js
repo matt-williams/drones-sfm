@@ -2,6 +2,7 @@
 
 var config = require('./config.json');
 var express = require('express');
+var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var aws = require('aws-sdk');
 var Docker = require('dockerode');
@@ -65,11 +66,38 @@ app.get('/api/', function(req, res) {
       var items = data.Items;
       var array = [];
       for (var ii = 0; ii < items.length; ii++) {
-        array.push({folder: items[ii].folder.S, thumbnail: items[ii].thumbnail.S});
+        var item = items[ii];
+        var obj = {};
+        for (var key in item) {
+          var jsonKey = key;
+          jsonKey = (jsonKey == "locationVal") ? "location" : jsonKey;
+          jsonKey = (jsonKey == "timestampVal") ? "timestamp" : jsonKey;
+          for (var type in item[key]) {
+            if (type == "N") {
+              obj[jsonKey] = parseInt(item[key][type]);
+            } else {
+              obj[jsonKey] = item[key][type];
+            }
+          }
+        }
+        array.push(obj);
       }
       res.send(array);
     }
   });
+});
+app.put('/api/:folder', bodyParser.json(), function(req, res) {
+  dynamo.updateItem({"Key": {"folder": {"S": req.body.folder}},
+                     "UpdateExpression": "SET locationVal = :locationVal, timestampVal = :timestampVal",
+                     "ExpressionAttributeValues": {":locationVal": {"S": req.body.location},
+                                                   ":timestampVal": {"N": "" + req.body.timestamp}}},
+    function(err, data) {
+      if (err) {
+        res.status(err.code).send(err);
+      } else {
+        res.status(200).send();
+      }
+    });
 });
 app.use('/api/:folder', express.static('static/api/folder'));
 app.put('/api/:folder/images/:file', function(req, res) {
