@@ -487,6 +487,13 @@
                     init();
                     animate();
 
+var reconstruction = reconstructions[0];
+for (var shot_id in reconstruction.shots) break;
+var firstCamera = {reconstruction: reconstruction, shot_id: shot_id, material: {}};
+setMovingMode('walk');
+setImagePlaneCamera(firstCamera);
+navigateToShot(firstCamera);
+
                     invokeJourneyWrapper(function () { journeyWrapper.initialize(); });
                 });
             }

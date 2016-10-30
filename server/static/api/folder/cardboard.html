@@ -351,6 +351,13 @@
                     init();
                     animate();
 
+var reconstruction = reconstructions[0];
+for (var shot_id in reconstruction.shots) break;
+var firstCamera = {reconstruction: reconstruction, shot_id: shot_id, material: {}};
+setMovingMode('walk');
+setImagePlaneCamera(firstCamera);
+navigateToShot(firstCamera);
+
                     invokeJourneyWrapper(function () { journeyWrapper.initialize(); });
                 });
             }
@@ -839,10 +846,6 @@
                 selectedCamera = cameraObject;
                 selectedCamera.material.linewidth = 5;
                 selectedCamera.material.color = options.selectedCameraColor;
-                var image_tag = document.getElementById('image');
-                image_tag.src = image_url;
-                var text = document.getElementById('text');
-                text.innerHTML = shot_id;
 
                 invokeJourneyWrapper(function () { journeyWrapper.showPath(); });
             }
