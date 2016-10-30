@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements ARDiscoveryServic
                             Log.e(TAG, "Running job against " + photoFile);
                             try {
                                 HttpClient client = new DefaultHttpClient();
-                                HttpPut put = new HttpPut("http://drones.uk.to/api/" + mFolder + "/images/" + photoFile.getName());
+                                HttpPut put = new HttpPut("http://intellidrone.uk.to/api/" + mFolder + "/images/" + photoFile.getName());
                                 put.setEntity(new FileEntity(photoFile, "image/jpeg"));
                                 HttpResponse putResponse = client.execute(put);
                                 Log.e(TAG, "Put response: " + putResponse.getStatusLine());
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements ARDiscoveryServic
                         Log.e(TAG, "Running process job");
                         try {
                             HttpClient client = new DefaultHttpClient();
-                            HttpPost post = new HttpPost("http://drones.uk.to/api/" + mFolder + "/process");
+                            HttpPost post = new HttpPost("http://intellidrone.uk.to/api/" + mFolder + "/process");
                             HttpResponse postResponse = client.execute(post);
                             Log.e(TAG, "Post response: " + postResponse.getStatusLine());
                             InputStream is = postResponse.getEntity().getContent();
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements ARDiscoveryServic
                             }
                             is.close();
 
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://drones.uk.to/api/" + mFolder + "/"));
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://intellidrone.uk.to/api/" + mFolder + "/"));
                             startActivity(browserIntent);
                             finish();
                         } catch (IOException e) {
