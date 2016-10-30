@@ -1,8 +1,10 @@
 #!/usr/bin/python
 
 import os
-import boto3
 import Image
+import boto3
+import subprocess
+import time
 
 img_bucket = os.environ['IMG_BUCKET']
 img_320_bucket = os.environ['IMG_320_BUCKET']
@@ -49,7 +51,14 @@ for root, dirnames, filenames in os.walk(data_dir):
             print 'Uploading %s to %s' % (file, key)
             s3c.upload_file(file, data_bucket, key)
 
+import tensorflow
+print 'Tensorflow-ing %s' % (data_dir + '/images/' + thumbnail,)
+taglines = subprocess.check_output(["python", "/usr/local/lib/python2.7/dist-packages/tensorflow/models/image/imagenet/classify_image.py", "--image_file", data_dir + '/images/' + thumbnail]).decode()
+tags = [tagline.split('(')[0].split(',')[0].strip() for tagline in taglines.split('\n') if tagline.split('(')[0].split(',')[0]]
+
 print 'Writing %s to dynamodb' % (folder,)
 dynamo.put_item(TableName=table,
                 Item={'folder': {'S': folder},
-                      'thumbnail': {'S': thumbnail}});
+                      'thumbnail': {'S': thumbnail},
+                      'tags': {'SS': tags},
+                      'timestamp': {'N': str(int(time.time()))}});
